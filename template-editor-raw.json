@@ -1,0 +1,1 @@
+{"gotosocial":{"GTS_ADMIN_PASSWORD":{"description":"Password for the seeded first admin account (username 'admin'). Change it in the settings panel after first login.","value":"${{secret(24)}}"},"GTS_HOST":{"description":"Public domain of this instance. Permanent federation identity — do not change after first boot.","value":"${{RAILWAY_PUBLIC_DOMAIN}}"}}}
