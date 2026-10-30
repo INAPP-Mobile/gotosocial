@@ -1,6 +1,6 @@
 # GoToSocial
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/deploy/gotosocial?utm_campaign=gotosocial)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/deploy/gotosocial-1?utm_campaign=gotosocial-1)
 
 GoToSocial is a lightweight, single-binary ActivityPub server: run your
 own home on the Fediverse, post from any Mastodon-compatible app

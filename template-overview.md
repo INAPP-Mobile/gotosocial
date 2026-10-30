@@ -1,4 +1,4 @@
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/deploy/gotosocial?utm_campaign=gotosocial)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/deploy/gotosocial-1?utm_campaign=gotosocial-1)
 
 ![GoToSocial admin panel — instance settings](https://raw.githubusercontent.com/INAPP-Mobile/gotosocial/main/assets/gotosocial-ui.png)
 
