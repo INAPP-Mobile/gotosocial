@@ -29,29 +29,62 @@ esac
 # First-boot admin seeding (exactly once, marker on the volume).
 # Upstream's documented first-user flow is `admin account create` +
 # `promote`, which needs container exec that Railway does not offer,
-# so the entrypoint does it before the server ever runs (promotion
-# therefore needs no restart). Admin-created accounts are
-# email-verified by design, so first login needs no SMTP.
+# so the entrypoint does it. Two hard-won facts shape the sequence:
+# (1) `admin account create` REFUSES on a fresh database — it needs
+# the instance application, which only a server run creates ("run the
+# server at least once *before* creating users"). So the entrypoint
+# boots the server briefly, waits for it to answer /api/v1/instance,
+# stops it, and only then seeds. (2) `promote` needs a server restart
+# to take effect — seeding before the foreground server starts means
+# the restart caveat never applies.
+# Admin-created accounts are email-verified by design (upstream fix
+# #1140), so first login needs no SMTP.
 # Credentials come from template variables: GTS_ADMIN_USERNAME and
 # GTS_ADMIN_EMAIL baked as Dockerfile defaults, GTS_ADMIN_PASSWORD as a
 # generated template secret. Change the password in the settings panel
 # after first login.
 if [ ! -f /data/.admin-seeded ] && [ -n "${GTS_ADMIN_PASSWORD:-}" ]; then
-  echo "[entrypoint] seeding first admin account '${GTS_ADMIN_USERNAME:-admin}'..."
-  if /gotosocial/gotosocial admin account create \
-      --username "${GTS_ADMIN_USERNAME:-admin}" \
-      --email "${GTS_ADMIN_EMAIL:-admin@example.com}" \
-      --password "${GTS_ADMIN_PASSWORD}"; then
-    echo "[entrypoint] admin account created."
+  echo "[entrypoint] first boot: starting server briefly to initialize the instance..."
+  /gotosocial/gotosocial server start &
+  SERVER_PID=$!
+  READY=0
+  i=0
+  while [ $i -lt 60 ]; do
+    if wget -q -O /dev/null "http://127.0.0.1:${GTS_PORT}/api/v1/instance" 2>/dev/null; then
+      READY=1
+      break
+    fi
+    # If the background server died, stop waiting and fail visibly.
+    if ! kill -0 $SERVER_PID 2>/dev/null; then
+      break
+    fi
+    sleep 2
+    i=$((i + 1))
+  done
+  if [ "$READY" != "1" ]; then
+    echo "[entrypoint] WARNING: init server did not become ready; stopping it and continuing to foreground server (seeding will retry on next restart)."
+    kill $SERVER_PID 2>/dev/null || true
+    wait $SERVER_PID 2>/dev/null || true
   else
-    echo "[entrypoint] NOTE: admin create failed (account may already exist); continuing to promote."
-  fi
-  if /gotosocial/gotosocial admin account promote \
-      --username "${GTS_ADMIN_USERNAME:-admin}"; then
-    touch /data/.admin-seeded
-    echo "[entrypoint] admin promoted and seeding marked complete."
-  else
-    echo "[entrypoint] WARNING: admin promote failed; seeding will retry on next restart."
+    echo "[entrypoint] init server ready; stopping it for seeding..."
+    kill $SERVER_PID 2>/dev/null || true
+    wait $SERVER_PID 2>/dev/null || true
+    echo "[entrypoint] seeding first admin account '${GTS_ADMIN_USERNAME:-admin}'..."
+    if /gotosocial/gotosocial admin account create \
+        --username "${GTS_ADMIN_USERNAME:-admin}" \
+        --email "${GTS_ADMIN_EMAIL:-admin@example.com}" \
+        --password "${GTS_ADMIN_PASSWORD}"; then
+      echo "[entrypoint] admin account created."
+    else
+      echo "[entrypoint] NOTE: admin create failed (account may already exist); continuing to promote."
+    fi
+    if /gotosocial/gotosocial admin account promote \
+        --username "${GTS_ADMIN_USERNAME:-admin}"; then
+      touch /data/.admin-seeded
+      echo "[entrypoint] admin promoted and seeding marked complete."
+    else
+      echo "[entrypoint] WARNING: admin promote failed; seeding will retry on next restart."
+    fi
   fi
 elif [ -f /data/.admin-seeded ]; then
   echo "[entrypoint] admin already seeded; skipping."

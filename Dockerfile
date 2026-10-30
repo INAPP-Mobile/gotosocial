@@ -27,13 +27,18 @@
 #   GoToSocial has no web signup for the first account on Railway —
 #   upstream's documented first-user flow is `admin account create`
 #   (plus `promote`), which needs container exec that Railway does not
-#   offer. So the entrypoint creates + promotes the admin from template
-#   variables on first boot (before the server ever runs, so the
+#   offer. So the entrypoint seeds the admin from template variables
+#   on first boot (before the foreground server starts, so the
 #   "promotion requires restart" caveat never applies), exactly once,
-#   tracked by a marker file on the volume. Admin-created accounts are
-#   email-verified by design (upstream fix #1140), so no SMTP round-trip
-#   is needed for first login. Web signups remain available as an
-#   opt-in: open registration + user-supplied SMTP (see README).
+#   tracked by a marker file on the volume. Two facts shape the
+#   sequence (both proven in e2e 2026-10-30): `admin account create`
+#   refuses on a fresh database — the instance application must exist
+#   first, so the entrypoint boots the server briefly, waits for
+#   /api/v1/instance to answer, stops it, then seeds. Admin-created
+#   accounts are email-verified by design (upstream fix #1140), so no
+#   SMTP round-trip is needed for first login. Web signups remain
+#   available as an opt-in: open registration + user-supplied SMTP
+#   (see README).
 # - No Docker HEALTHCHECK: the Alpine base has busybox but no curl in
 #   PATH guarantees; Railway's external healthcheckPath (/) covers it —
 #   the landing page is public and unauthenticated.

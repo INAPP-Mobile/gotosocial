@@ -24,8 +24,10 @@ your domain) with:
 
 The admin account is created automatically on first boot — GoToSocial
 has no web signup for the first account, and Railway offers no
-container shell, so the entrypoint runs upstream's documented
-`admin account create` + `promote` flow for you, exactly once.
+container shell, so the entrypoint boots the server briefly to
+initialize the instance, then runs upstream's documented
+`admin account create` + `promote` flow for you, exactly once, before
+starting the server for good.
 Change the password in the settings panel after first login.
 
 ## Deploy and Host
