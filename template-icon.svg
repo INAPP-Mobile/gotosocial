@@ -1,9 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#1d2733"/>
-  <circle cx="32" cy="32" r="17" fill="none" stroke="#5eead4" stroke-width="3"/>
-  <circle cx="32" cy="32" r="6" fill="#5eead4"/>
-  <circle cx="32" cy="15" r="3.5" fill="#f8fafc"/>
-  <circle cx="49" cy="32" r="3.5" fill="#f8fafc"/>
-  <circle cx="32" cy="49" r="3.5" fill="#f8fafc"/>
-  <circle cx="15" cy="32" r="3.5" fill="#f8fafc"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#15171A"/>
+      <stop offset="100%" stop-color="#D08050"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" rx="120" fill="url(#bg)"/>
+  <circle cx="400" cy="400" r="235" fill="none" stroke="#FFFFFF" stroke-width="16" opacity="0.55"/>
+  <circle cx="400" cy="400" r="105" fill="#FFFFFF"/>
+  <circle cx="400" cy="400" r="42" fill="#D08050"/>
+  <circle cx="400" cy="165" r="60" fill="#FFFFFF"/>
+  <circle cx="635" cy="400" r="60" fill="#FFFFFF"/>
+  <circle cx="400" cy="635" r="60" fill="#FFFFFF"/>
+  <circle cx="165" cy="400" r="60" fill="#FFFFFF"/>
 </svg>
